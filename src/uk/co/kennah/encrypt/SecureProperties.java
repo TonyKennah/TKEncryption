@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.properties.EncryptableProperties;
-
 import uk.co.kennah.encrypt.utils.KeGen;
 import uk.co.kennah.encrypt.utils.PaGen;
 
@@ -57,7 +56,7 @@ public class SecureProperties {
 		if(new File(filename).isFile()) {
 			Properties toConvert = loadProperties(new Properties(), filename);
 			if(toConvert.getProperty(TOKENS)==null){
-				toConvert.setProperty(TOKENS, crypto(PaGen.pas()));
+				toConvert.setProperty(TOKENS, encrypt(PaGen.generateValidPassword()));
 				writePropertiesFile(toConvert, filename);
 			}			
 		}
@@ -92,7 +91,7 @@ public class SecureProperties {
 	 * @param key			String to be used as the key
 	 * @param value			String to be used as the value for this key value pair
 	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
-	 *				Comes directly from the setProperty() method
+	 * 				Comes directly from the setProperty() method
 	 */
 	public Object setEncryptedProperty(String key, String value) {
 		encProps.add(key);
@@ -125,18 +124,19 @@ public class SecureProperties {
 			.forEach( e -> p.setProperty(e.toString(), prop.getProperty(e.toString())));*/
 		for(Object k : prop.keySet()) {
 			if(encProps.contains(k.toString()))
-				p.setProperty(k.toString(), encrypt(prop.getProperty(k.toString())));
+				p.setProperty(k.toString(), encryptToken(prop.getProperty(k.toString())));
 			else
 				p.setProperty(k.toString(), prop.getProperty(k.toString()));
 		}
 		writePropertiesFile(p, filename);
 	}
+
 	
 	private SecureProperties(String filename){
 		this.filename = filename;
 		if(!new File(filename).isFile()) {
 			Properties p = new Properties();
-			p.setProperty(TOKENS, crypto(PaGen.pas()));
+			p.setProperty(TOKENS, encrypt(PaGen.generateValidPassword()));
 			writePropertiesFile(p, filename);
 		}
 		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
@@ -146,7 +146,7 @@ public class SecureProperties {
 		loadProperties(prop, filename);
 	}
 	
-	private String encrypt(String token){
+	private String encryptToken(String token){
 		return "ENC(" + encryptor(decrypt()).encrypt(token) + ")";
 	}
 	
@@ -183,12 +183,12 @@ public class SecureProperties {
 		return prop;
 	}
 	
-	private static String crypto(String passwd) {
+	private static String encrypt(String passwd) {
 		KeGen kg = new KeGen(12);
 		StringBuffer enc = new StringBuffer();
 		for(byte b : passwd.getBytes())
 			enc.append(new BigInteger(new byte[]{b}).modPow(kg.pub(), kg.sig())+",");	
-		enc.append(kg.pri()+","+kg.sig());
+		enc.append(kg.pri()+","+kg.sig());	
 		return enc.toString();
 	}
 	
