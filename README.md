@@ -2,7 +2,7 @@
 A simple encrypted properties implementation (needs Jasypt http://www.jasypt.org/) with the jasypt encryption password encrypted asymmetrically and stored within the same file :)
 
 <pre>
-public static void main(String[] args) throws IOException {
+public static void main(String[] args){
 	SecureProperties sp = SecureProperties.createSecureProperties("file.txt");
 	sp.setProperty("not.encrypted", "Readable value");
 	sp.setEncryptedProperty("is.encrypted", "Unreadable value");
