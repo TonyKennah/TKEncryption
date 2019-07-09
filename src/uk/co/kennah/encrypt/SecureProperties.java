@@ -189,8 +189,7 @@ public class SecureProperties {
 		StringBuffer enc = new StringBuffer();
 		for(byte b : passwd.getBytes())
 			enc.append(new BigInteger(new byte[]{b}).modPow(kg.pub(), kg.sig())+",");	
-		enc.append(kg.pri()+",");
-		enc.append(kg.sig());	
+		enc.append(kg.pri()+","+kg.sig());
 		return enc.toString();
 	}
 	
@@ -198,16 +197,5 @@ public class SecureProperties {
 		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
 		enc.setPassword(passwd);
 		return enc;
-	}
-	
-	public static void main(String[] args){
-		SecureProperties sp = SecureProperties.create("file.txt");
-		sp.setProperty("not.encyrpted", "Readable value");
-		sp.setEncryptedProperty("is.encrypted", "Unreadable value");
-		sp.store();
-		
-		for(Object key : sp.keySet()) {
-			System.out.println(key.toString() +"="+ sp.getProperty(key.toString()));
-		}
 	}
 }
