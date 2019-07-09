@@ -167,11 +167,8 @@ public class SecureProperties {
 	}
 	
 	private String decrypt() {
-		if(tokenValue==null) {
-			Properties p = new Properties();
-			loadProperties(p, filename);
-			tokenValue = decrypt(Arrays.asList(p.getProperty(TOKENS).split(",")));
-		}
+		if(tokenValue==null)
+			tokenValue = decrypt(Arrays.asList(loadProperties(new Properties(), filename).getProperty(TOKENS).split(",")));
 		return tokenValue;
 	}
 	
