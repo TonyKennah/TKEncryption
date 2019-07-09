@@ -160,7 +160,7 @@ public class SecureProperties {
 				.limit(t.size() - 2)
 				.map(e -> new BigInteger(e))
 				.map(i -> i.modPow(new BigInteger(t.get(t.size() - 2)),
-								   new BigInteger(t.get(t.size() - 1))))
+						   new BigInteger(t.get(t.size() - 1))))
 				.map(c -> (char) c.byteValue())
 				.map(String::valueOf)
 				.collect(Collectors.joining(""));
