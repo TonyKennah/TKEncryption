@@ -2,7 +2,6 @@ package uk.co.kennah.encrypt;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +32,6 @@ public class SecureProperties {
 	private String filename;
 	private Properties prop;
 	private List<String> encProps;
-	private String tk ="";
 	
 	/**
 	 * Returns a SecureProperties object that can then be used to store encrypted content. 
@@ -53,10 +51,8 @@ public class SecureProperties {
 	 * @return      					the secure property file awaiting encrypted content
 	 * @see         					java.util.Properties Properties
 	 * @param filename					the path\filename to be used
-	 * @throws FileNotFoundException 	FNF
-	 * @throws IOException				IOE
 	 */
-	public static SecureProperties createSecureProperties(String filename) throws FileNotFoundException, IOException {
+	public static SecureProperties createSecureProperties(String filename){
 		if(new File(filename).isFile()) {
 			Properties toConvert = new Properties();
 			loadProperties(toConvert, filename);
@@ -116,10 +112,8 @@ public class SecureProperties {
 	 * store	gets the property list ready for writing to disk and
 	 * then calls the private internal writePropertiesFile method to
 	 * actually write this list to permanent storage.
-	 * 
-	 * @throws IOException if there is a problem writing this file
 	 */
-	public void store() throws IOException {
+	public void store(){
 		Properties p = new Properties();
 		/*prop.keySet().stream()
 			.filter( e -> encProps.contains(e.toString()))
@@ -137,7 +131,7 @@ public class SecureProperties {
 	}
 
 	
-	private SecureProperties(String filename) throws FileNotFoundException, IOException {
+	private SecureProperties(String filename){
 		this.filename = filename;
 		encProps = new ArrayList<>();
 		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
@@ -172,11 +166,7 @@ public class SecureProperties {
 	
 	private String decrypt() {
 		Properties p = new Properties();
-		try {
-			loadProperties(p, filename);
-		} catch (IOException e) {
-			throw new RuntimeException("Properties couldn't be loaded!");
-		}
+		loadProperties(p, filename);
 		if(p.getProperty(TOKENS)!=null){
 			List<String> tokens = Arrays.asList(p.getProperty(TOKENS).split(","));
 			return decrypt(tokens);
@@ -186,17 +176,23 @@ public class SecureProperties {
 		}
 	}
 	
-	private static void writePropertiesFile(Properties p, String filename) throws IOException {
-		OutputStream os = new FileOutputStream(new File(filename));
-		p.store(os, "Do not edit the "+TOKENS+" or any ENC() constants");
-		os.flush();
-		os.close();
+	private static void writePropertiesFile(Properties p, String filename){
+		try {
+			OutputStream os = new FileOutputStream(new File(filename));
+			p.store(os, "Do not edit the "+TOKENS+" or any ENC() constants");
+			os.flush();
+			os.close();
+		}
+		catch (IOException e) {	throw new RuntimeException("Properties couldn't be written!"); }
 	}
 	
-	private static void loadProperties(Properties prop, String filename) throws IOException {
-		InputStream is = new FileInputStream(new File(filename));
-		prop.load(is);	
-		is.close();
+	private static void loadProperties(Properties prop, String filename){
+		try {
+			InputStream is = new FileInputStream(new File(filename));
+			prop.load(is);	
+			is.close();
+		}
+		catch (IOException e) {	throw new RuntimeException("Properties couldn't be loaded!"); }
 	}
 	
 	private static String crypto(String passwd) {
