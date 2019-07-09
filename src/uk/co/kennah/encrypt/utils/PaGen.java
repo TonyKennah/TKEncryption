@@ -16,7 +16,7 @@ public class PaGen {
     private static final String SPECIAL = "_*!";
     private static final int LENGTH = 8;
     
-    public static String pas() {
+    public static String generateValidPassword() {
     	String pass = generatePassword();
     	while(!isValid(pass)) {
     		pass = generatePassword();
