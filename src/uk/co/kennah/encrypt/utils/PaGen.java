@@ -47,9 +47,9 @@ public class PaGen {
     }
     
     private static boolean isValid(String value) {
-    	return contains(value, i -> Character.isLetter(i) && Character.isLowerCase(i)) && 
-    			contains(value, i -> Character.isLetter(i) && Character.isUpperCase(i)) && 
-    			contains(value, Character::isDigit);
+    	return 	contains(value, i -> Character.isLetter(i) && Character.isLowerCase(i)) && 
+    		contains(value, i -> Character.isLetter(i) && Character.isUpperCase(i)) && 
+    		contains(value, Character::isDigit);
     }
     
     private static boolean contains(String value, IntPredicate predicate) {
