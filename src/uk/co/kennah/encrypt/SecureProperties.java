@@ -137,15 +137,11 @@ public class SecureProperties {
 		encProps = new ArrayList<>();
 		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
 		if(!new File(filename).isFile()) {
-			String pas = PaGen.pas();
 			Properties p = new Properties();
-			p.setProperty(TOKENS, crypto(pas));
+			p.setProperty(TOKENS, crypto(PaGen.pas()));
 			writePropertiesFile(p, filename);
-			enc.setPassword(pas);
 		}
-		else {
-			enc.setPassword(decrypt());
-		}
+		enc.setPassword(decrypt());
 		this.prop = new EncryptableProperties(enc);
 		loadProperties(prop, filename);
 	}
