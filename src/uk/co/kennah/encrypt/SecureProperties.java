@@ -57,8 +57,7 @@ public class SecureProperties {
 			Properties toConvert = new Properties();
 			loadProperties(toConvert, filename);
 			if(toConvert.getProperty(TOKENS)==null){
-				String pas = PaGen.pas();
-				toConvert.setProperty(TOKENS, crypto(pas));
+				toConvert.setProperty(TOKENS, crypto(PaGen.pas()));
 				writePropertiesFile(toConvert, filename);
 			}			
 		}
