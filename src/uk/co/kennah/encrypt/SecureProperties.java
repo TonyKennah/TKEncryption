@@ -32,6 +32,7 @@ public class SecureProperties {
 	private String filename;
 	private Properties prop;
 	private List<String> encProps;
+	private String tokenValue;
 	
 	/**
 	 * Returns a SecureProperties object that can then be used to store encrypted content. 
@@ -48,9 +49,9 @@ public class SecureProperties {
 	 * If the filename passed to this static initialiser doesn't exist a new file will be
 	 * eventually be created containing tokens.
 	 * 
-	 * @return      		the secure property file awaiting encrypted content
-	 * @see         		java.util.Properties Properties
-	 * @param filename		the path\filename to be used
+	 * @return      					the secure property file awaiting encrypted content
+	 * @see         					java.util.Properties Properties
+	 * @param filename					the path\filename to be used
 	 */
 	public static SecureProperties createSecureProperties(String filename){
 		if(new File(filename).isFile()) {
@@ -79,30 +80,31 @@ public class SecureProperties {
 	 * 
 	 * @param key			String to be used as the key
 	 * @param value			String to be used as the value for this key value pair
-	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
+	 * @return 				the previous value of the specified key in this property list, or null if it did not have one.
 	 */
 	public Object setProperty(String key, String value){
 		return prop.setProperty(key, value);
 	}
 	
 	/**
-	 * Set the property BUT make sure this is encrypted so we add this key to the 
-	 * java.util.List of encrypted contents / values
+	 * Set the property BUT make sure this is eventually encrypted so we add this key to the 
+	 * java.util.List of encrypted contents / values for later use in store().  This method makes use 
+	 * of the standard setProperty() method of this object. 
 	 * 
-	 * @param key			String to be used as the key
+	 * @param key			String to be used as the key - from setProperty()
 	 * @param value			String to be used as the value for this key value pair
-	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
+	 * @return 				the previous value of the specified key in this property list, or null if it did not have one.
 	 */
 	public Object setEncryptedProperty(String key, String value) {
 		encProps.add(key);
-		return prop.setProperty(key, encrypt(value));
+		return setProperty(key, value);
 	}
 	
 	/**
 	 * Get the property
 	 * 
 	 * @param key			String to be used as the key
-	 * @return 			String which this key points at from the underlying property list.
+	 * @return 				String which this key points at from the underlying property list.
 	 */
 	public String getProperty(String key) {
 		return prop.getProperty(key);
@@ -166,14 +168,13 @@ public class SecureProperties {
 	}
 	
 	private String decrypt() {
-		Properties p = new Properties();
-		loadProperties(p, filename);
-		if(p.getProperty(TOKENS)!=null){
-			return decrypt(Arrays.asList(p.getProperty(TOKENS).split(",")));
+		if(tokenValue==null) {
+			System.out.println("HERE SEE?");
+			Properties p = new Properties();
+			loadProperties(p, filename);
+			tokenValue = decrypt(Arrays.asList(p.getProperty(TOKENS).split(",")));
 		}
-		else {
-			throw new RuntimeException("No "+TOKENS +" available to read. Maybe try createSecureProperties()");
-		}
+		return tokenValue;
 	}
 	
 	private static void writePropertiesFile(Properties p, String filename){
