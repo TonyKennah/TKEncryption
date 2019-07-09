@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.properties.EncryptableProperties;
-
 import uk.co.kennah.encrypt.utils.KeGen;
 import uk.co.kennah.encrypt.utils.PaGen;
 
@@ -49,9 +48,9 @@ public class SecureProperties {
 	 * If the filename passed to this static initialiser doesn't exist a new file will be
 	 * eventually be created containing tokens.
 	 * 
-	 * @return      					the secure property file awaiting encrypted content
-	 * @see         					java.util.Properties Properties
-	 * @param filename					the path\filename to be used
+	 * @return      		the secure property file awaiting encrypted content
+	 * @see         		java.util.Properties Properties
+	 * @param filename		the path\filename to be used
 	 */
 	public static SecureProperties createSecureProperties(String filename){
 		if(new File(filename).isFile()) {
@@ -80,7 +79,7 @@ public class SecureProperties {
 	 * 
 	 * @param key			String to be used as the key
 	 * @param value			String to be used as the value for this key value pair
-	 * @return 				the previous value of the specified key in this property list, or null if it did not have one.
+	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
 	 */
 	public Object setProperty(String key, String value){
 		return prop.setProperty(key, value);
@@ -93,7 +92,7 @@ public class SecureProperties {
 	 * 
 	 * @param key			String to be used as the key - from setProperty()
 	 * @param value			String to be used as the value for this key value pair
-	 * @return 				the previous value of the specified key in this property list, or null if it did not have one.
+	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
 	 */
 	public Object setEncryptedProperty(String key, String value) {
 		encProps.add(key);
@@ -104,7 +103,7 @@ public class SecureProperties {
 	 * Get the property
 	 * 
 	 * @param key			String to be used as the key
-	 * @return 				String which this key points at from the underlying property list.
+	 * @return 			String which this key points at from the underlying property list.
 	 */
 	public String getProperty(String key) {
 		return prop.getProperty(key);
