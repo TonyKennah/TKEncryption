@@ -1,5 +1,5 @@
 # SecureProperties
-A simple encrypted properties implementation (needs Jasypt http://www.jasypt.org/) with the symmetric encryption password encrypted asymetrically and stored within the same file.
+A simple encrypted properties implementation (needs Jasypt http://www.jasypt.org/) with the symmetric encryption password encrypted asymmetrically and stored within the same file :)
 
 <pre>
 public static void main(String[] args) throws IOException {
