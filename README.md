@@ -1,5 +1,5 @@
 # SecureProperties
-A simple encrypted properties implementation (needs Jasypt)
+A simple encrypted properties implementation (needs Jasypt http://www.jasypt.org/)
 
 <pre>
 public static void main(String[] args) throws IOException {
