@@ -31,13 +31,13 @@ public class PaGen {
         		returnValue.append(ALPHA_U.charAt(RANDOM.nextInt(ALPHA_U.length())));
         	else {
         		Random ran = new Random(); 
-                int nxt = ran.nextInt(3);
-                if(nxt == 0)
-                	returnValue.append(ALPHA_L.charAt(RANDOM.nextInt(ALPHA_L.length())));
-                else if(nxt == 1)
-                	returnValue.append(ALPHA_U.charAt(RANDOM.nextInt(ALPHA_U.length())));
-                else if(nxt == 2)
-                	returnValue.append(NUMBER.charAt(RANDOM.nextInt(NUMBER.length())));
+                	int nxt = ran.nextInt(3);
+                	if(nxt == 0)
+                		returnValue.append(ALPHA_L.charAt(RANDOM.nextInt(ALPHA_L.length())));
+                	else if(nxt == 1)
+                		returnValue.append(ALPHA_U.charAt(RANDOM.nextInt(ALPHA_U.length())));
+                	else if(nxt == 2)
+                		returnValue.append(NUMBER.charAt(RANDOM.nextInt(NUMBER.length())));
         	}
         }
         Random rand = new Random();
@@ -47,23 +47,11 @@ public class PaGen {
     }
     
     private static boolean isValid(String value) {
-    	return hasLower(value) && 
-               hasUpper(value) && 
-               hasNumber(value);
+    	return contains(value, i -> Character.isLetter(i) && Character.isLowerCase(i)) && 
+    			contains(value, i -> Character.isLetter(i) && Character.isUpperCase(i)) && 
+    			contains(value, Character::isDigit);
     }
     
-    private static boolean hasLower(String value) {
-        return contains(value, i -> Character.isLetter(i) && Character.isLowerCase(i));
-    }
-
-    private static boolean hasUpper(String value) {
-        return contains(value, i -> Character.isLetter(i) && Character.isUpperCase(i));
-    }
-
-    private static boolean hasNumber(String value) {
-        return contains(value, Character::isDigit);
-    }
-
     private static boolean contains(String value, IntPredicate predicate) {
         return value.chars().anyMatch(predicate);
     }
