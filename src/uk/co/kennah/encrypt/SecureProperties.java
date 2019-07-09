@@ -48,9 +48,9 @@ public class SecureProperties {
 	 * If the filename passed to this static initialiser doesn't exist a new file will be
 	 * eventually be created containing tokens.
 	 * 
-	 * @return      					the secure property file awaiting encrypted content
-	 * @see         					java.util.Properties Properties
-	 * @param filename					the path\filename to be used
+	 * @return      		the secure property file awaiting encrypted content
+	 * @see         		java.util.Properties Properties
+	 * @param filename		the path\filename to be used
 	 */
 	public static SecureProperties createSecureProperties(String filename){
 		if(new File(filename).isFile()) {
@@ -79,7 +79,7 @@ public class SecureProperties {
 	 * 
 	 * @param key			String to be used as the key
 	 * @param value			String to be used as the value for this key value pair
-	 * @return 				the previous value of the specified key in this property list, or null if it did not have one.
+	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
 	 */
 	public Object setProperty(String key, String value){
 		return prop.setProperty(key, value);
@@ -91,7 +91,7 @@ public class SecureProperties {
 	 * 
 	 * @param key			String to be used as the key
 	 * @param value			String to be used as the value for this key value pair
-	 * @return 				the previous value of the specified key in this property list, or null if it did not have one.
+	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
 	 */
 	public Object setEncryptedProperty(String key, String value) {
 		encProps.add(key);
@@ -102,7 +102,7 @@ public class SecureProperties {
 	 * Get the property
 	 * 
 	 * @param key			String to be used as the key
-	 * @return 				String which this key points at from the underlying property list.
+	 * @return 			String which this key points at from the underlying property list.
 	 */
 	public String getProperty(String key) {
 		return prop.getProperty(key);
@@ -115,7 +115,8 @@ public class SecureProperties {
 	 */
 	public void store(){
 		Properties p = new Properties();
-		/*prop.keySet().stream()
+		/* Java 8 V Java 7 = side effects = Java 7 wins
+		prop.keySet().stream()
 			.filter( e -> encProps.contains(e.toString()))
 			.forEach( e -> p.setProperty(e.toString(), encrypt(prop.getProperty(e.toString()))));
 		prop.keySet().stream()
@@ -168,8 +169,7 @@ public class SecureProperties {
 		Properties p = new Properties();
 		loadProperties(p, filename);
 		if(p.getProperty(TOKENS)!=null){
-			List<String> tokens = Arrays.asList(p.getProperty(TOKENS).split(","));
-			return decrypt(tokens);
+			return decrypt(Arrays.asList(p.getProperty(TOKENS).split(",")));
 		}
 		else {
 			throw new RuntimeException("No "+TOKENS +" available to read. Maybe try createSecureProperties()");
@@ -197,12 +197,12 @@ public class SecureProperties {
 	
 	private static String crypto(String passwd) {
 		KeGen kg = new KeGen(12);
-		List<BigInteger> enc = new ArrayList<>();
+		StringBuffer enc = new StringBuffer();
 		for(byte b : passwd.getBytes())
-			enc.add(new BigInteger(new byte[]{b}).modPow(kg.pub(), kg.sig()));	
-		enc.add(kg.pri());
-		enc.add(kg.sig());	
-		return enc.toString().replaceAll(",.",",").replaceAll("[\\[\\]]", "");
+			enc.append(new BigInteger(new byte[]{b}).modPow(kg.pub(), kg.sig())+",");	
+		enc.append(kg.pri()+",");
+		enc.append(kg.sig());	
+		return enc.toString();
 	}
 	
 	private static StandardPBEStringEncryptor encryptor(String passwd) {
