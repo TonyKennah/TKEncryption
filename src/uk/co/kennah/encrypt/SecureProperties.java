@@ -172,20 +172,16 @@ public class SecureProperties {
 	}
 	
 	private static void writePropertiesFile(Properties p, String filename){
-		try {
-			OutputStream os = new FileOutputStream(new File(filename));
+		try(OutputStream os = new FileOutputStream(new File(filename))) {
 			p.store(os, "Do not edit the "+TOKENS+" or any ENC() constants");
 			os.flush();
-			os.close();
 		}
 		catch (IOException e) {	throw new RuntimeException("Properties couldn't be written!"); }
 	}
 	
 	private static Properties loadProperties(Properties prop, String filename){
-		try {
-			InputStream is = new FileInputStream(new File(filename));
+		try(InputStream is = new FileInputStream(new File(filename))) {
 			prop.load(is);	
-			is.close();
 		}
 		catch (IOException e) {	throw new RuntimeException("Properties couldn't be loaded!"); }
 		return prop;
