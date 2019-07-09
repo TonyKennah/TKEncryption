@@ -54,8 +54,7 @@ public class SecureProperties {
 	 */
 	public static SecureProperties createSecureProperties(String filename){
 		if(new File(filename).isFile()) {
-			Properties toConvert = new Properties();
-			loadProperties(toConvert, filename);
+			Properties toConvert = loadProperties(new Properties(), filename);
 			if(toConvert.getProperty(TOKENS)==null){
 				toConvert.setProperty(TOKENS, crypto(PaGen.pas()));
 				writePropertiesFile(toConvert, filename);
