@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.properties.EncryptableProperties;
+
 import uk.co.kennah.encrypt.utils.KeGen;
 import uk.co.kennah.encrypt.utils.PaGen;
 
@@ -38,7 +39,7 @@ public class SecureProperties {
 	 * 
 	 * {@link uk.co.kennah.encrypt.utils.PaGen PaGen} is used to generate a random password.
 	 * 
-	 * createSecureProperties is the only way to instantiate a new secure properties
+	 * SecureProperties.create("filename"); is the only way to instantiate a new secure properties
 	 * 
 	 * <p>
 	 * If the filename passed to this static initialiser exists and contains
@@ -52,7 +53,7 @@ public class SecureProperties {
 	 * @see         		java.util.Properties Properties
 	 * @param filename		the path\filename to be used
 	 */
-	public static SecureProperties createSecureProperties(String filename){
+	public static SecureProperties create(String filename){
 		if(new File(filename).isFile()) {
 			Properties toConvert = loadProperties(new Properties(), filename);
 			if(toConvert.getProperty(TOKENS)==null){
@@ -88,10 +89,9 @@ public class SecureProperties {
 	 * java.util.List of encrypted contents / values for later use in store().  This method makes use 
 	 * of the standard setProperty() method of this object. 
 	 * 
-	 * @param key			String to be used as the key
+	 * @param key			String to be used as the key - from setProperty()
 	 * @param value			String to be used as the value for this key value pair
 	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
-	 *				Comes directly from the setProperty() method
 	 */
 	public Object setEncryptedProperty(String key, String value) {
 		encProps.add(key);
@@ -155,7 +155,7 @@ public class SecureProperties {
 				.limit(t.size() - 2)
 				.map(e -> new BigInteger(e))
 				.map(i -> i.modPow(new BigInteger(t.get(t.size() - 2)),
-						   new BigInteger(t.get(t.size() - 1))))
+								   new BigInteger(t.get(t.size() - 1))))
 				.map(c -> (char) c.byteValue())
 				.map(String::valueOf)
 				.collect(Collectors.joining(""));
@@ -197,5 +197,16 @@ public class SecureProperties {
 		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
 		enc.setPassword(passwd);
 		return enc;
+	}
+	
+	public static void main(String[] args){
+		SecureProperties sp = SecureProperties.create("file.txt");
+		sp.setProperty("not.encyrpted", "Readable value");
+		sp.setEncryptedProperty("is.encrypted", "Unreadable value");
+		sp.store();
+		
+		for(Object key : sp.keySet()) {
+			System.out.println(key.toString() +"="+ sp.getProperty(key.toString()));
+		}
 	}
 }
