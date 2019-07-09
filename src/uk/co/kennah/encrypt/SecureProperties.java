@@ -168,7 +168,6 @@ public class SecureProperties {
 	
 	private String decrypt() {
 		if(tokenValue==null) {
-			System.out.println("HERE SEE?");
 			Properties p = new Properties();
 			loadProperties(p, filename);
 			tokenValue = decrypt(Arrays.asList(p.getProperty(TOKENS).split(",")));
