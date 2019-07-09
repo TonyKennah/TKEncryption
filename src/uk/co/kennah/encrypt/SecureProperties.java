@@ -131,19 +131,18 @@ public class SecureProperties {
 		}
 		writePropertiesFile(p, filename);
 	}
-
 	
 	private SecureProperties(String filename){
 		this.filename = filename;
-		encProps = new ArrayList<>();
-		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
 		if(!new File(filename).isFile()) {
 			Properties p = new Properties();
 			p.setProperty(TOKENS, crypto(PaGen.pas()));
 			writePropertiesFile(p, filename);
 		}
+		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
 		enc.setPassword(decrypt());
 		this.prop = new EncryptableProperties(enc);
+		encProps = new ArrayList<>();
 		loadProperties(prop, filename);
 	}
 	
