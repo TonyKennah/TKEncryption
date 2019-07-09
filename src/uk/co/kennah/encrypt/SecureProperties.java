@@ -185,13 +185,14 @@ public class SecureProperties {
 		catch (IOException e) {	throw new RuntimeException("Properties couldn't be written!"); }
 	}
 	
-	private static void loadProperties(Properties prop, String filename){
+	private static Properties loadProperties(Properties prop, String filename){
 		try {
 			InputStream is = new FileInputStream(new File(filename));
 			prop.load(is);	
 			is.close();
 		}
 		catch (IOException e) {	throw new RuntimeException("Properties couldn't be loaded!"); }
+		return prop;
 	}
 	
 	private static String crypto(String passwd) {
