@@ -90,9 +90,10 @@ public class SecureProperties {
 	 * java.util.List of encrypted contents / values for later use in store().  This method makes use 
 	 * of the standard setProperty() method of this object. 
 	 * 
-	 * @param key			String to be used as the key - from setProperty()
+	 * @param key			String to be used as the key
 	 * @param value			String to be used as the value for this key value pair
 	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
+	 *				Comes directly from the setProperty() method
 	 */
 	public Object setEncryptedProperty(String key, String value) {
 		encProps.add(key);
