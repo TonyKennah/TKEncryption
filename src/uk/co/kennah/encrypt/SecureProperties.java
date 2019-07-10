@@ -136,7 +136,8 @@ public class SecureProperties {
 		this.filename = filename;
 		if(!new File(filename).isFile()) {
 			Properties p = new Properties();
-			p.setProperty(TOKENS, encrypt(PaGen.generateValidPassword()));
+			tokenValue = encrypt(PaGen.generateValidPassword())
+			p.setProperty(TOKENS, tokenValue);
 			writePropertiesFile(p, filename);
 		}
 		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
