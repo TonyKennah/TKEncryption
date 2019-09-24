@@ -27,11 +27,24 @@ import uk.co.kennah.encrypt.utils.PaGen;
  */
 public class SecureProperties {
 
+	//TOKENS - is just a label that will be used within a secured property file
+	//		   as a key for a set of encrypted values (the key for the file)
 	private static final String TOKENS = "TK.ACCESS.AUTHENTICATION.TOKENS";
-	private String filename;
-	private Properties prop;
-	private List<String> encProps;
+	
+	//originalProperties - is either existing and provided in or created
+	private Properties originalProperties;
+	
+	//encryptedProperties - when all is complete this will be used to store key / values
+	private Properties encryptedProperties;
+	
+	//listOfEncrytpedPropertyKeys - records all keys whose value will need to be encrypted
+	private List<String> listOfEncrytpedPropertyKeys;
+	
+	//an in memory reference to the encrypted key for this file
 	private String tokenValue;
+	
+	//the name of the file which is the focus of code
+	private String filename;
 	
 	/**
 	 * Returns a SecureProperties object that can then be used to store encrypted content. 
@@ -69,7 +82,7 @@ public class SecureProperties {
 	 * @return returns the keyset from the underlying property list
 	 */
 	public Set<Object> keySet() {
-		return prop.keySet();
+		return originalProperties.keySet();
 	}
 
 	/**
@@ -77,10 +90,10 @@ public class SecureProperties {
 	 * 
 	 * @param key			String to be used as the key
 	 * @param value			String to be used as the value for this key value pair
-	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
+	 * @return 				the previous value of the specified key in this property list, or null if it did not have one.
 	 */
 	public Object setProperty(String key, String value){
-		return prop.setProperty(key, value);
+		return originalProperties.setProperty(key, value);
 	}
 	
 	/**
@@ -90,11 +103,11 @@ public class SecureProperties {
 	 * 
 	 * @param key			String to be used as the key
 	 * @param value			String to be used as the value for this key value pair
-	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
-	 * 				Comes directly from the setProperty() method
+	 * @return 				the previous value of the specified key in this property list, or null if it did not have one.
+	 * 						Comes directly from the setProperty() method
 	 */
 	public Object setEncryptedProperty(String key, String value) {
-		encProps.add(key);
+		listOfEncrytpedPropertyKeys.add(key);
 		return setProperty(key, value);
 	}
 	
@@ -102,49 +115,49 @@ public class SecureProperties {
 	 * Get the property
 	 * 
 	 * @param key			String to be used as the key
-	 * @return 			String which this key points at from the underlying property list.
+	 * @return 				String which this key points at from the underlying property list.
 	 */
 	public String getProperty(String key) {
-		return prop.getProperty(key);
+		return originalProperties.getProperty(key);
 	}
 	
 	/**
-	 * store	gets the property list ready for writing to disk and
+	 * store	gets the property list ready for writing to disk using
+	 * the private mapper method to either encrypt or not encrypt the values
 	 * then calls the private internal writePropertiesFile method to
 	 * actually write this list to permanent storage.
 	 */
 	public void store(){
-		Properties p = new Properties();
-		/* Java 8 V Java 7 = side effects = Java 7 wins
-		prop.keySet().stream()
-			.filter( e -> encProps.contains(e.toString()))
-			.forEach( e -> p.setProperty(e.toString(), encrypt(prop.getProperty(e.toString()))));
-		prop.keySet().stream()
-			.filter( e -> !encProps.contains(e.toString()))
-			.forEach( e -> p.setProperty(e.toString(), prop.getProperty(e.toString())));*/
-		for(Object k : prop.keySet()) {
-			if(encProps.contains(k.toString()))
-				p.setProperty(k.toString(), encryptToken(prop.getProperty(k.toString())));
-			else
-				p.setProperty(k.toString(), prop.getProperty(k.toString()));
-		}
-		writePropertiesFile(p, filename);
+		encryptedProperties = new Properties();
+		originalProperties.keySet().stream()
+			.map(this::mapOriginalPropToSecuredProp)
+			.collect(Collectors.toList());
+		writePropertiesFile(encryptedProperties, filename);
 	}
-
 	
+										//private instance methods//
+	/**
+	 * private constructor.
+	 */
 	private SecureProperties(String filename){
 		this.filename = filename;
 		if(!new File(filename).isFile()) {
 			Properties p = new Properties();
-			tokenValue = encrypt(PaGen.generateValidPassword())
-			p.setProperty(TOKENS, tokenValue);
+			p.setProperty(TOKENS, encrypt(PaGen.generateValidPassword()));
 			writePropertiesFile(p, filename);
 		}
 		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
 		enc.setPassword(decrypt());
-		this.prop = new EncryptableProperties(enc);
-		encProps = new ArrayList<>();
-		loadProperties(prop, filename);
+		this.originalProperties = new EncryptableProperties(enc);
+		listOfEncrytpedPropertyKeys = new ArrayList<>();
+		loadProperties(originalProperties, filename);
+	}
+	
+	private Object mapOriginalPropToSecuredProp(Object e) {
+		String key = String.valueOf(e);
+		if(listOfEncrytpedPropertyKeys.contains(key))
+			return encryptedProperties.setProperty(key, encryptToken(originalProperties.getProperty(key)));
+		return encryptedProperties.setProperty(key, originalProperties.getProperty(key));
 	}
 	
 	private String encryptToken(String token){
@@ -167,6 +180,8 @@ public class SecureProperties {
 			tokenValue = decrypt(Arrays.asList(loadProperties(new Properties(), filename).getProperty(TOKENS).split(",")));
 		return tokenValue;
 	}
+	
+										//private static methods//
 	
 	private static void writePropertiesFile(Properties p, String filename){
 		try(OutputStream os = new FileOutputStream(new File(filename))) {
