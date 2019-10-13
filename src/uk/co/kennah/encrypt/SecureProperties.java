@@ -3,17 +3,20 @@ package uk.co.kennah.encrypt;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
-import java.util.ArrayList;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.properties.EncryptableProperties;
 import uk.co.kennah.encrypt.utils.KeGen;
 import uk.co.kennah.encrypt.utils.PaGen;
@@ -28,10 +31,10 @@ import uk.co.kennah.encrypt.utils.PaGen;
 public class SecureProperties {
 
 	//TOKENS - is just a label that will be used within a secured property file
-	//		   as a key for a set of encrypted values (the key for the file)
+	//	as a key for a set of encrypted values (the key for the file)
 	private static final String TOKENS = "TK.ACCESS.AUTHENTICATION.TOKENS";
 	
-	//originalProperties - is either existing and provided in or created
+	//originalProperties - is either existing and provided in or we fail
 	private Properties originalProperties;
 	
 	//encryptedProperties - when all is complete this will be used to store key / values
@@ -39,7 +42,7 @@ public class SecureProperties {
 	
 	//listOfEncrytpedPropertyKeys - records all keys whose value will need to be encrypted
 	private List<String> listOfEncrytpedPropertyKeys;
-	
+		
 	//an in memory reference to the encrypted key for this file
 	private String tokenValue;
 	
@@ -58,20 +61,20 @@ public class SecureProperties {
 	 * Authentication Tokens (an encrypted password), the tokens found will be used.
 	 * If the filename passed to this static initialiser exists and DOES NOT contain
 	 * Authentication Tokens, the tokens will be produced.
-	 * If the filename passed to this static initialiser doesn't exist a new file will be
-	 * eventually be created containing tokens.
+	 * If the filename passed to this static initialiser doesn't exist we fail
 	 * 
 	 * @return      		the secure property file awaiting encrypted content
 	 * @see         		java.util.Properties Properties
 	 * @param filename		the path\filename to be used
+	 * @throws URISyntaxException 
 	 */
 	public static SecureProperties create(String filename){
-		if(new File(filename).isFile()) {
+		if(new File(checkPathForFile(filename)).isFile()) {
 			Properties toConvert = loadProperties(new Properties(), filename);
 			if(toConvert.getProperty(TOKENS)==null){
 				toConvert.setProperty(TOKENS, encrypt(PaGen.generateValidPassword()));
 				writePropertiesFile(toConvert, filename);
-			}			
+			}
 		}
 		return new SecureProperties(filename);
 	}
@@ -81,8 +84,8 @@ public class SecureProperties {
 	 * 
 	 * @return returns the keyset from the underlying property list
 	 */
-	public Set<Object> keySet() {
-		return originalProperties.keySet();
+	public Set<String> keySet() {
+		return originalProperties.keySet().stream().map( e -> e.toString() ).collect(Collectors.toSet());
 	}
 
 	/**
@@ -90,10 +93,11 @@ public class SecureProperties {
 	 * 
 	 * @param key			String to be used as the key
 	 * @param value			String to be used as the value for this key value pair
-	 * @return 				the previous value of the specified key in this property list, or null if it did not have one.
+	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
 	 */
-	public Object setProperty(String key, String value){
-		return originalProperties.setProperty(key, value);
+	public String setProperty(String key, String value){
+		Object o = originalProperties.setProperty(key, value);
+		return o == null ? "" : o.toString();
 	}
 	
 	/**
@@ -103,22 +107,36 @@ public class SecureProperties {
 	 * 
 	 * @param key			String to be used as the key
 	 * @param value			String to be used as the value for this key value pair
-	 * @return 				the previous value of the specified key in this property list, or null if it did not have one.
-	 * 						Comes directly from the setProperty() method
+	 * @return 			the previous value of the specified key in this property list, or null if it did not have one.
+	 * 				Comes directly from the setProperty() method
 	 */
-	public Object setEncryptedProperty(String key, String value) {
+	public String setEncryptedProperty(String key, String value) {
 		listOfEncrytpedPropertyKeys.add(key);
-		return setProperty(key, value);
+		return setProperty(key, value).toString();
 	}
 	
 	/**
 	 * Get the property
 	 * 
 	 * @param key			String to be used as the key
-	 * @return 				String which this key points at from the underlying property list.
+	 * @return 			String which this key points at from the underlying property list.
+	 * @throws			RuntimeException (with nice message) - if jasypt has a problem
 	 */
 	public String getProperty(String key) {
-		return originalProperties.getProperty(key);
+		try {
+			return originalProperties.getProperty(key);
+		}
+		catch(EncryptionOperationNotPossibleException e) {
+			throw new RuntimeException("Properties file has become corrupt!\n\t"
+					+ "Either an ENC() tagged value has been modified or " + TOKENS + "\n" 
+					+ "Exception:\n\tEncryptionOperationNotPossibleException\n"
+					+ "Message:\n\t"
+					+ e.getMessage()
+					+ "\nStackTrace:\n"
+					+ Stream.of(e.getStackTrace())
+						.map( f -> "\t"+f.toString()+"\n")
+						.collect(Collectors.joining("")));
+		}
 	}
 	
 	/**
@@ -130,40 +148,66 @@ public class SecureProperties {
 	public void store(){
 		encryptedProperties = new Properties();
 		originalProperties.keySet().stream()
+			.map( e -> e.toString() )
 			.map(this::mapOriginalPropToSecuredProp)
 			.collect(Collectors.toList());
 		writePropertiesFile(encryptedProperties, filename);
 	}
 	
-										//private instance methods//
+							//private instance methods//
 	/**
-	 * private constructor.
+	 * private constructor	-	Sets up a couple of our global attributes
+	 * Directly
+	 * 		filename, originalProperties, listOfEncrytpedPropertyKeys
+	 * Indirectly
+	 * 		tokenValue
+	 * Of our 5 global attributes only 1 'encryptedProperties' isn't instantiated
 	 */
 	private SecureProperties(String filename){
 		this.filename = filename;
-		if(!new File(filename).isFile()) {
-			Properties p = new Properties();
-			p.setProperty(TOKENS, encrypt(PaGen.generateValidPassword()));
-			writePropertiesFile(p, filename);
-		}
 		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
 		enc.setPassword(decrypt());
 		this.originalProperties = new EncryptableProperties(enc);
-		listOfEncrytpedPropertyKeys = new ArrayList<>();
 		loadProperties(originalProperties, filename);
+		
+		Properties p = loadProperties(new Properties(), filename);
+		listOfEncrytpedPropertyKeys = p.keySet().stream()
+				.filter( e -> p.get(e).toString().contains("ENC(") )
+				.map( e -> e.toString())
+				.collect(Collectors.toList());
 	}
-	
-	private Object mapOriginalPropToSecuredProp(Object e) {
-		String key = String.valueOf(e);
+
+	/**
+	 * Mapper - deciding whether to set an encrypted token or an unencrypted token
+	 * 		uses listOfEncrytpedPropertyKeys List to decide
+	 * 
+	 * @param	String key 	-	The key that holds the possibly encrypted value
+	 * @return	String		-	The previous value of the specified key in this propertylist, or
+	 *					null if it did not have one.
+	 */
+	private Object mapOriginalPropToSecuredProp(String key) {
 		if(listOfEncrytpedPropertyKeys.contains(key))
 			return encryptedProperties.setProperty(key, encryptToken(originalProperties.getProperty(key)));
 		return encryptedProperties.setProperty(key, originalProperties.getProperty(key));
 	}
 	
+	/**
+	 * Uses the password stored within the properties file to encrypt the token being provided
+	 * and wraps the encrypted token in ENC() tags as standard
+	 * 
+	 * @param	String token 	- 	String to be encrypted
+	 * @return	String		-	encrypted Sting within ENC() tag
+	 */
 	private String encryptToken(String token){
 		return "ENC(" + encryptor(decrypt()).encrypt(token) + ")";
 	}
 	
+	/**
+	 * Takes a list of stings and converts them via maths then joins them into a single string
+	 * 
+	 * @param 	List<String>
+	 * @return	String - joined up and manipulated elements of input param 
+	 */
 	private String decrypt(List<String> t) {
 		return t.stream()
 				.limit(t.size() - 2)
@@ -175,6 +219,9 @@ public class SecureProperties {
 				.collect(Collectors.joining(""));
 	}
 	
+	/**
+	 * Returns the file tokenValue / password if it is set or sets it first if not.
+	 */
 	private String decrypt() {
 		if(tokenValue==null)
 			tokenValue = decrypt(Arrays.asList(loadProperties(new Properties(), filename).getProperty(TOKENS).split(",")));
@@ -183,22 +230,58 @@ public class SecureProperties {
 	
 										//private static methods//
 	
+	/**
+	 * Return the current CLASSPATH entries excluding jar files
+	 */
+	private static String createExceptionMessage() {
+		return Stream.of(((URLClassLoader)ClassLoader.getSystemClassLoader()).getURLs())
+				.filter( e -> !e.toString().toLowerCase().endsWith(".jar"))
+				.map( e -> "   "+e.toString()+"\n")
+				.collect(Collectors.joining(""));
+	}
+	
+	/**
+	 * Check to see if we can read the provided resource
+	 */
+	private static URI checkPathForFile(String filename){
+		if(SecureProperties.class.getClassLoader().getResource(filename) != null)
+			try {
+				return SecureProperties.class.getClassLoader().getResource(filename).toURI();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		else
+			throw new RuntimeException("The file called <<" + filename + ">> couldn't be found on CLASSPATH.\n"
+					+ "Try adding the location of the file to your CLASSPATH or "
+					+ "moving\\creating the file on the defined CLASSPATH\n\nCLASSPATH:\n" + createExceptionMessage());
+		return null;
+	}
+	
+	/**
+	 * Writes a Properties file to disk
+	 */
 	private static void writePropertiesFile(Properties p, String filename){
-		try(OutputStream os = new FileOutputStream(new File(filename))) {
+		try(OutputStream os = new FileOutputStream(new File(checkPathForFile(filename)))) {
 			p.store(os, "Do not edit the "+TOKENS+" or any ENC() constants");
 			os.flush();
 		}
-		catch (IOException e) {	throw new RuntimeException("Properties couldn't be written!"); }
+		catch (Exception e){ throw new RuntimeException("Properties couldn't be written!"); } 
 	}
 	
+	/**
+	 * Reads and loads up a Properties file from disk
+	 */
 	private static Properties loadProperties(Properties prop, String filename){
-		try(InputStream is = new FileInputStream(new File(filename))) {
+		try(InputStream is = new FileInputStream(new File(checkPathForFile(filename)))) {
 			prop.load(is);	
 		}
-		catch (IOException e) {	throw new RuntimeException("Properties couldn't be loaded!"); }
+		catch (Exception e) {	throw new RuntimeException("Properties couldn't be loaded!"); }
 		return prop;
 	}
 	
+	/**
+	 * Uses KeGen class to help encrypt the provided String which, once encrypted, is returned 
+	 */
 	private static String encrypt(String passwd) {
 		KeGen kg = new KeGen(12);
 		StringBuffer enc = new StringBuffer();
@@ -208,6 +291,10 @@ public class SecureProperties {
 		return enc.toString();
 	}
 	
+	/**
+	 * This method simply sets a password on an org.jasypt.encryption.pbe.StandardPBEStringEncryptor 
+	 * and returns that Encryptor.
+	 */
 	private static StandardPBEStringEncryptor encryptor(String passwd) {
 		StandardPBEStringEncryptor enc = new StandardPBEStringEncryptor();
 		enc.setPassword(passwd);
