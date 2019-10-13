@@ -14,7 +14,7 @@ public static void main(String[] args){
 	//}
 }
 
-Produces: file.txt
+Must exist already on the CLASSPATH: file.txt
 
 #Do not edit the TK.ACCESS.AUTHENTICATION.TOKENS or any ENC() constants
 #Tue Jul 09 20:22:07 BST 2019
