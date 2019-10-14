@@ -54,7 +54,7 @@ public class SecureProperties {
 	 * 
 	 * {@link uk.co.kennah.encrypt.utils.PaGen PaGen} is used to generate a random password.
 	 * 
-	 * SecureProperties.create("filename"); is the only way to instantiate a new secure properties
+	 * SecureProperties.getInstance("filename"); is the only way to instantiate a new secure properties
 	 * 
 	 * <p>
 	 * If the filename passed to this static initialiser exists and contains
@@ -68,7 +68,7 @@ public class SecureProperties {
 	 * @param filename		the path\filename to be used
 	 * @throws URISyntaxException 
 	 */
-	public static SecureProperties create(String filename){
+	public static SecureProperties getInstance(String filename){
 		if(new File(checkPathForFile(filename)).isFile()) {
 			Properties toConvert = loadProperties(new Properties(), filename);
 			if(toConvert.getProperty(TOKENS)==null){
