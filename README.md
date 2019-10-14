@@ -9,8 +9,8 @@ public static void main(String[] args){
 	sp.store();
 	
 	//Getting Properties
-	//for(Object key : sp.keySet()) {
-	//	System.out.println(key.toString() +"="+ sp.getProperty(key.toString()));
+	//for(String key : sp.keySet()) {
+	//	System.out.println(key +"="+ sp.getProperty(key));
 	//}
 }
 
