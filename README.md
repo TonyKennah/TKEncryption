@@ -3,7 +3,7 @@ A simple encrypted properties implementation (needs Jasypt http://www.jasypt.org
 
 <pre>
 public static void main(String[] args){
-	SecureProperties sp = SecureProperties.create("file.txt");
+	SecureProperties sp = SecureProperties.getInstance("file.txt");
 	sp.setProperty("not.encrypted", "Readable value");
 	sp.setEncryptedProperty("is.encrypted", "Unreadable value");
 	sp.store();
