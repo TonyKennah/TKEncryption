@@ -21,13 +21,15 @@ public class Main {
         System.out.println("\n--- Generated Keys (truncated for display) ---");
         String privateKeyStr = keyPair.getPrivateKey().toString();
         String modulusStr = keyPair.getModulus().toString();
+        String truncatedModulus = modulusStr.substring(0, Math.min(modulusStr.length(), 60)) + "...";
 
-        // The public key is a small, fixed number, so we can print it fully.
-        System.out.println("Public Key (e):  " + keyPair.getPublicKey());
-        // The private key and modulus are very large, so we'll print the first 60 characters.
-        System.out.println("Private Key (d): " + privateKeyStr.substring(0, Math.min(privateKeyStr.length(), 60)) + "...");
-        System.out.println("Modulus (n):     " + modulusStr.substring(0, Math.min(modulusStr.length(), 60)) + "...");
+        System.out.println("Public Key (e, n):");
+        System.out.println("  e: " + keyPair.getPublicKey());
+        System.out.println("  n: " + truncatedModulus);
 
+        System.out.println("\nPrivate Key (d, n):");
+        System.out.println("  d: " + privateKeyStr.substring(0, Math.min(privateKeyStr.length(), 60)) + "...");
+        System.out.println("  n: " + truncatedModulus);
 
 		// The message to be encrypted.
 		String originalMessage = "This is a secret message for the RSA demo!";
@@ -38,7 +40,11 @@ public class Main {
 		System.out.println("\nEncrypting with PUBLIC key...");
 		BigInteger ciphertext = PaddedRSA.encrypt(originalBytes, keyPair.getPublicKey(), keyPair.getModulus());
 		String ciphertextStr = ciphertext.toString();
-		System.out.println("Ciphertext: " + ciphertextStr.substring(0, Math.min(ciphertextStr.length(), 60)) + "...");
+		System.out.println("Ciphertext (as a large integer): " + ciphertextStr.substring(0, Math.min(ciphertextStr.length(), 60)) + "...");
+		System.out.println("  - This number is the result of the RSA formula: (padded_message ^ e) mod n.");
+		System.out.println("  - It appears random and its value is guaranteed to be less than the modulus (n).");
+		System.out.println("  - Because of the random padding, encrypting the same message again would produce a different ciphertext.");
+		System.out.println("  - Bit length of ciphertext: " + ciphertext.bitLength() + " (will be close to the key bit length of 2048)");
 
 		// 3. Decrypt the message using the PRIVATE key (d, n).
 		// Only the owner of the private key can decrypt the data.
@@ -48,7 +54,7 @@ public class Main {
 
 		System.out.println("\n--- Results ---");
 		System.out.println("Original Message:  " + originalMessage);
-		System.out.println("Decrypted Message: " + decryptedMessage);
+		System.out.println("Decrypted Message: " + decryptedMessage + "\n");
 
 	}
 
