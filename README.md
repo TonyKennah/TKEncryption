@@ -2,6 +2,12 @@
 
 This project is a simple, educational command-line application demonstrating the principles of RSA encryption and decryption using pure Java and `BigInteger`. It includes key generation, OAEP-style padding, and a round-trip demonstration of encrypting and decrypting a user-provided message.
 
+> [!WARNING]
+> **For Educational Use Only**
+>
+> This implementation is for educational purposes to demonstrate the mechanics of RSA. It has not been subjected to a formal security audit and may contain vulnerabilities. **Do not use this code in a production environment.**
+> For production-grade cryptography, always use well-vetted, standard libraries like Java's `javax.crypto` or Bouncy Castle.
+
 ## Prerequisites
 
 *   Java Development Kit (JDK) 17 or later
