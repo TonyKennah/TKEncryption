@@ -1,5 +1,7 @@
 # From-Scratch RSA Encryption Demo
 
+[![Build Status](https://github.com/TonyKennah/SecureProperties/actions/workflows/maven.yml/badge.svg)](https://github.com/TonyKennah/SecureProperties/actions/workflows/maven.yml)
+
 This project is an educational tool designed to demonstrate the inner workings of RSA asymmetric encryption by implementing its core components from the ground up in Java.
 
 **The primary goal is learning, not production use.**
@@ -18,6 +20,10 @@ The purpose of this project is to demystify asymmetric encryption. Instead of re
 
 -   `src/main/java/uk/co/kennah/encrypt/Main.java`
     -   The main driver class that showcases the entire process.
+
+## Continuous Integration
+
+This project uses GitHub Actions to automatically build the code on every push to the `master` branch. This ensures that the project remains compilable and healthy. The build status badge at the top of this README reflects the result of the latest build.
 
 ## How to Run the Demo
 
