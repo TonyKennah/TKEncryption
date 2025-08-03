@@ -3,13 +3,6 @@
   <groupId>uk.co.kennah.encrypt</groupId>
   <artifactId>tk-encrypt</artifactId>
   <version>1.1.0</version>
-  <dependencies>
-  	<dependency>
-    	<groupId>org.jasypt</groupId>
-    	<artifactId>jasypt</artifactId>
-    	<version>1.9.3</version>
-	</dependency>
-  </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>17</maven.compiler.release>
@@ -32,4 +25,25 @@
       </plugin>
     </plugins>
   </build>
+    <dependencies>
+    <!-- JUnit 5 for unit testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.10.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.10.2</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Jasypt for password-based encryption (if still needed) -->
+    <dependency>
+      <groupId>org.jasypt</groupId>
+      <artifactId>jasypt</artifactId>
+      <version>1.9.3</version>
+    </dependency>
+  </dependencies>
 </project>

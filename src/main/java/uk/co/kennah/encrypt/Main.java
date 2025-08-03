@@ -3,6 +3,7 @@ package uk.co.kennah.encrypt;
 import uk.co.kennah.encrypt.utils.KeGen;
 import uk.co.kennah.encrypt.utils.PaddedRSA;
 
+import java.io.Console;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
@@ -31,8 +32,17 @@ public class Main {
         System.out.println("  d: " + privateKeyStr.substring(0, Math.min(privateKeyStr.length(), 60)) + "...");
         System.out.println("  n: " + truncatedModulus);
 
-        // The message to be encrypted.
-        String originalMessage = "This is a secret message for the RSA demo!";
+        // Get the message to be encrypted from user input.
+        Console console = System.console();
+        if (console == null) {
+            // This can happen when running inside certain IDEs.
+            // Running from a command line terminal is recommended.
+            System.err.println("\nNo console available. Please run from a terminal.");
+            System.exit(1);
+        }
+
+        System.out.print("\nEnter the message to encrypt: ");
+        String originalMessage = console.readLine();
         byte[] originalBytes = originalMessage.getBytes(StandardCharsets.UTF_8);
 
         // 2. Encrypt the message using the PUBLIC key (e, n).
