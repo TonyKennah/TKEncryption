@@ -1,5 +1,7 @@
 # RSA Encryption Demo
 
+[![Java CI with Maven](https://github.com/tonykennah/tk-encrypt/actions/workflows/maven.yml/badge.svg)](https://github.com/tonykennah/tk-encrypt/actions/workflows/maven.yml)
+
 This project is a simple, educational command-line application demonstrating the principles of RSA encryption and decryption using pure Java and `BigInteger`. It includes key generation, OAEP-style padding, and a round-trip demonstration of encrypting and decrypting a user-provided message.
 
 > [!WARNING]
