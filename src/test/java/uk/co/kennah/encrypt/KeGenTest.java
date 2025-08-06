@@ -7,6 +7,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,7 +55,7 @@ class KeGenTest {
     void testRoundTripEncryptionDecryption() {
         // This test verifies the mathematical relationship between the keys.
         // It uses textbook RSA (modPow) which is suitable for testing the keys themselves.
-        BigInteger message = new BigInteger("This is a test message for the repeated KeGen class test".getBytes());
+        BigInteger message = new BigInteger("This is a test message for the repeated KeGen class test".getBytes(StandardCharsets.UTF_8));
 
         // Encrypt with public key: ciphertext = message^e mod n
         BigInteger ciphertext = message.modPow(keyPair.getPublicKey(), keyPair.getModulus());
