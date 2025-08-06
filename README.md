@@ -79,4 +79,3 @@ Display the encrypted and then decrypted message to demonstrate a successful rou
 -   `KeGenRSA.java`: Generates RSA public and private key pairs of a specified bit length.
 -   `KeGenAES.java`: A simple utility to generate a cryptographically secure random key for AES.
 -   `PaddedRSA.java`: Implements RSA encryption and decryption with PKCS#1 v1.5 padding.
--   `AESCipher.java`: (In progress) A from-scratch implementation of the AES algorithm. Not yet integrated.
