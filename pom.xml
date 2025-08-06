@@ -16,6 +16,11 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.2</version>
+      </plugin>
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
@@ -38,12 +43,6 @@
       <artifactId>junit-jupiter-engine</artifactId>
       <version>5.10.2</version>
       <scope>test</scope>
-    </dependency>
-    <!-- Jasypt for password-based encryption (if still needed) -->
-    <dependency>
-      <groupId>org.jasypt</groupId>
-      <artifactId>jasypt</artifactId>
-      <version>1.9.3</version>
     </dependency>
   </dependencies>
 </project>
