@@ -22,10 +22,11 @@ public class KeGen {
 	public KeGen(int bitLength) {
 		SecureRandom rand = new SecureRandom();
 		// 1. Find two large, distinct prime numbers, p and q.
-		// We use BigInteger.probablePrime for this, which is a standard and secure way.
-		// A true from-scratch implementation would need its own Miller-Rabin primality test.
-		BigInteger p = BigInteger.probablePrime(bitLength / 2, rand);
-		BigInteger q = BigInteger.probablePrime(bitLength / 2, rand);
+		BigInteger p = generatePrime(bitLength / 2, rand);
+		BigInteger q;
+		do {
+			q = generatePrime(bitLength / 2, rand);
+		} while (p.equals(q)); // Ensure p and q are distinct primes.
 
 		// 2. Compute n = p * q. This is the modulus for both keys.
 		this.modulus = p.multiply(q);
@@ -40,6 +41,17 @@ public class KeGen {
 		this.privateKey = publicKey.modInverse(phi); // d
 	}
 	
+	/**
+	 * Generates a probable prime number. Extracted for testability so it can be overridden.
+	 * @param bitLength bit length for the prime.
+	 * @param random the random number generator.
+	 * @return a BigInteger that is probably prime.
+	 */
+	protected BigInteger generatePrime(int bitLength, SecureRandom random) {
+		// We use BigInteger.probablePrime, a standard and secure way to get large primes.
+		return BigInteger.probablePrime(bitLength, random);
+	}
+
 	public BigInteger getModulus() {
 		return modulus;
 	}

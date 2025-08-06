@@ -7,6 +7,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -70,5 +71,34 @@ class KeGenTest {
         KeGen anotherKeyPair = new KeGen(BITS);
         assertNotEquals(keyPair.getModulus(), anotherKeyPair.getModulus(), "Modulus of two different key pairs should not be the same.");
         assertNotEquals(keyPair.getPrivateKey(), anotherKeyPair.getPrivateKey(), "Private key of two different key pairs should not be the same.");
+    }
+
+    @Test
+    @DisplayName("Should handle p and q being the same initial prime and regenerate")
+    void testHandlesIdenticalPrimes() {
+        // Two distinct, known prime numbers for predictable testing.
+        final BigInteger prime1 = new BigInteger("587");
+        final BigInteger prime2 = new BigInteger("593");
+
+        // A queue to control the sequence of primes returned by our mock generator.
+        // It will return prime1, then prime1 again (the duplicate case), then prime2.
+        final java.util.Queue<BigInteger> primeSequence = new java.util.LinkedList<>();
+        primeSequence.add(prime1); // First prime (p)
+        primeSequence.add(prime1); // Second prime (q), the duplicate that should be rejected
+        primeSequence.add(prime2); // Third prime (q), the valid second prime
+
+        // Create an anonymous subclass of KeGen to override the prime generation.
+        // This is a form of dependency injection for testing purposes.
+        KeGen keyGenWithControlledPrimes = new KeGen(BITS) {
+            @Override
+            protected BigInteger generatePrime(int bitLength, SecureRandom random) {
+                // Instead of generating a random prime, we pull from our predefined sequence.
+                return primeSequence.poll();
+            }
+        };
+
+        // We can explicitly check that the final modulus is the product of the two *distinct* primes.
+        BigInteger expectedModulus = prime1.multiply(prime2);
+        assertEquals(expectedModulus, keyGenWithControlledPrimes.getModulus(), "Modulus should be the product of the two distinct primes.");
     }
 }
