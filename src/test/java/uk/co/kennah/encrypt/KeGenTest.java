@@ -1,6 +1,6 @@
 package uk.co.kennah.encrypt;
 
-import uk.co.kennah.encrypt.utils.KeGen;
+import uk.co.kennah.encrypt.utils.KeGenRSA;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class KeGenTest {
 
-    private KeGen keyPair;
+    private KeGenRSA keyPair;
     private final int BITS = 1024; // Use a smaller key size for faster tests
 
     @BeforeEach
     void setUp() {
         // Generate a new key pair before each test
-        keyPair = new KeGen(BITS);
+        keyPair = new KeGenRSA(BITS);
     }
 
     @Test
@@ -69,7 +69,7 @@ class KeGenTest {
     @Test
     @DisplayName("Should generate different keys on subsequent calls")
     void testKeyGenerationIsRandom() {
-        KeGen anotherKeyPair = new KeGen(BITS);
+        KeGenRSA anotherKeyPair = new KeGenRSA(BITS);
         assertNotEquals(keyPair.getModulus(), anotherKeyPair.getModulus(), "Modulus of two different key pairs should not be the same.");
         assertNotEquals(keyPair.getPrivateKey(), anotherKeyPair.getPrivateKey(), "Private key of two different key pairs should not be the same.");
     }
@@ -90,7 +90,7 @@ class KeGenTest {
 
         // Create an anonymous subclass of KeGen to override the prime generation.
         // This is a form of dependency injection for testing purposes.
-        KeGen keyGenWithControlledPrimes = new KeGen(BITS) {
+        KeGenRSA keyGenWithControlledPrimes = new KeGenRSA(BITS) {
             @Override
             protected BigInteger generatePrime(int bitLength, SecureRandom random) {
                 // Instead of generating a random prime, we pull from our predefined sequence.

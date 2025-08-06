@@ -1,9 +1,11 @@
 package uk.co.kennah.encrypt;
 
-import uk.co.kennah.encrypt.utils.KeGen;
+import uk.co.kennah.encrypt.utils.KeGenAES;
+import uk.co.kennah.encrypt.utils.KeGenRSA;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import javax.crypto.SecretKey;
 import java.util.Scanner;
 import java.util.Base64;
 
@@ -13,7 +15,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             System.out.println("Generating 2048-bit RSA key pair...");
-            KeGen keyPair = new KeGen(2048);
+            KeGenRSA keyPair = new KeGenRSA(2048);
             BigInteger publicKey = keyPair.getPublicKey();
             BigInteger privateKey = keyPair.getPrivateKey();
             BigInteger modulus = keyPair.getModulus();
@@ -44,9 +46,13 @@ public class Main {
 
             System.out.println("Original Message (length " + originalMessage.length() + "): " + originalMessage);
 
+            // For each message, generate a new, one-time-use AES key.
+            System.out.println("\nGenerating one-time AES key for this message...");
+            SecretKey aesKey = KeGenAES.generateKey(128);
+
             // Encrypt using the hybrid scheme
             System.out.println("\nEncrypting with hybrid (RSA+AES) scheme...");
-            byte[] hybridCiphertext = HybridEncryptor.encrypt(originalMessage.getBytes(StandardCharsets.UTF_8),
+            byte[] hybridCiphertext = HybridEncryptor.encrypt(originalMessage.getBytes(StandardCharsets.UTF_8), aesKey,
                     publicKey, modulus);
             System.out.println("Encryption successful!");
             System.out.println("\n\nHybrid Ciphertext (Base64): " + Base64.getEncoder().encodeToString(hybridCiphertext));

@@ -6,7 +6,7 @@ import java.security.SecureRandom;
 /**
  * @author Tony Kennah
  */
-public class KeGen {
+public class KeGenRSA {
 	
 	private final BigInteger privateKey;
 	private final BigInteger publicKey;
@@ -19,7 +19,7 @@ public class KeGen {
 	 *
 	 * @param bitLength The desired bit length of the key (e.g., 2048).
 	 */
-	public KeGen(int bitLength) {
+	public KeGenRSA(int bitLength) {
 		SecureRandom rand = new SecureRandom();
 		// 1. Find two large, distinct prime numbers, p and q.
 		BigInteger p = generatePrime(bitLength / 2, rand);

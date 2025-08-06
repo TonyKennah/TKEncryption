@@ -1,6 +1,5 @@
 package uk.co.kennah.encrypt;
 
-import uk.co.kennah.encrypt.utils.AESKeyGenerator;
 import uk.co.kennah.encrypt.utils.PaddedRSA;
 
 import javax.crypto.Cipher;
@@ -25,16 +24,16 @@ public class HybridEncryptor {
      * Encrypts a message of any size using a hybrid RSA-AES scheme.
      *
      * @param message The plaintext message to encrypt.
+     * @param aesKey  The one-time AES key to use for this encryption.
      * @param e       The public RSA exponent.
      * @param n       The public RSA modulus.
      * @return A single byte array containing the encrypted AES key, IV, and encrypted message.
      * @throws Exception if encryption fails.
      */
-    public static byte[] encrypt(byte[] message, BigInteger e, BigInteger n) throws Exception {
-        // 1. Generate a new, random AES key for this encryption session.
-        SecretKey aesKey = AESKeyGenerator.generateKey(AES_KEY_SIZE);
+    public static byte[] encrypt(byte[] message, SecretKey aesKey, BigInteger e, BigInteger n) throws Exception {
+        // 1. The one-time AES key is now passed in as a parameter.
 
-        // 2. Generate a random Initialization Vector (IV).
+        // 2. Generate a random Initialization Vector (IV) for this encryption operation.
         byte[] iv = new byte[IV_SIZE];
         new SecureRandom().nextBytes(iv);
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
