@@ -1,49 +1,70 @@
-# RSA Encryption Demo
+# TKEncryption
 
-[![Java CI with Maven](https://github.com/tonykennah/secureproperties/actions/workflows/maven.yml/badge.svg)](https://github.com/tonykennah/secureproperties/actions/workflows/maven.yml)
+An educational Java project demonstrating hybrid encryption by implementing parts of the cryptographic stack from scratch.
 
-This project is a simple, educational command-line application demonstrating the principles of RSA encryption and decryption using pure Java and `BigInteger`. It includes key generation, OAEP-style padding, and a round-trip demonstration of encrypting and decrypting a user-provided message.
+## Overview
 
-> [!WARNING]
-> **For Educational Use Only**
->
-> This implementation is for educational purposes to demonstrate the mechanics of RSA. It has not been subjected to a formal security audit and may contain vulnerabilities. **Do not use this code in a production environment.**
-> For production-grade cryptography, always use well-vetted, standard libraries like Java's `javax.crypto` or Bouncy Castle.
+This project was created to explore the inner workings of common cryptographic algorithms. It started with a basic RSA implementation and evolved into a hybrid system that combines the strengths of both asymmetric (RSA) and symmetric (AES) cryptography. This allows it to encrypt messages of any length, overcoming the size limitations of using RSA alone.
 
-## Prerequisites
+A key goal of this project is to progressively replace standard Java security libraries with custom, from-scratch implementations for learning purposes.
 
-*   Java Development Kit (JDK) 17 or later
-*   Apache Maven
+## Features
+
+- **Hybrid Encryption:** Combines a custom RSA implementation for key exchange with the standard Java `Cipher` class for AES data encryption.
+- **Custom RSA Implementation:** Includes from-scratch logic for key generation (`KeGen.java`) and encryption/decryption with PKCS#1 v1.5 padding (`PaddedRSA.java`).
+- **Custom AES Key Generation:** `AESKeyGenerator.java` provides a simple utility to generate a cryptographically secure random key for AES, replacing `javax.crypto.KeyGenerator`.
+
+---
+
+### ⚠️ Security Disclaimer
+
+**IMPORTANT:** This project is for **educational purposes only**.
+
+The custom cryptographic implementations are simplified to be understandable and are **not secure for production use**. They have not been hardened against side-channel attacks or other advanced vulnerabilities. For any real-world application, always use standard, well-vetted cryptographic libraries like Java's `javax.crypto` package.
+
+---
+
 
 ## Building the Project
-
 To compile the source code, run the following Maven command from the project's root directory:
 
-```sh
-mvn compile
+``` bash
+   mvn compile
 ```
 
-This will download dependencies and compile the Java classes into the `target/classes` directory.
+This will download dependencies and compile the Java classes into the target/classes directory.
 
-## Running the Tests
-
+Running the Tests
 The project includes a suite of JUnit 5 tests to verify the correctness of the key generation logic. To run these tests, use:
 
-```sh
-mvn test
+```bash
+   mvn test
 ```
 
-A report of the test results will be generated in the `target/surefire-reports` directory.
+A report of the test results will be generated in the target/surefire-reports directory.
 
-## Running the Application
-
+Running the Application
 To run the interactive encryption demo, execute the following command:
 
-```sh
-mvn exec:java
+
+```bash
+   mvn exec:java
 ```
 
 The application will:
-1.  Generate a new 2048-bit RSA key pair.
-2.  Prompt you to enter a message to encrypt.
-3.  Display the encrypted and then decrypted message to demonstrate a successful round-trip.
+
+Generate a new 2048-bit RSA key pair.
+Prompt you to enter a message to encrypt.
+Display the encrypted and then decrypted message to demonstrate a successful round-trip.
+
+
+## Project Structure
+
+-   `Main.java`: The entry point for the application. Demonstrates the full encryption and decryption flow.
+-   `HybridEncryptor.java`: The core class that orchestrates the hybrid encryption scheme. It generates a one-time AES key, encrypts the data with it, and then encrypts the AES key using RSA.
+
+### Utility Classes (`utils/`)
+
+-   `KeGen.java`: Generates RSA public and private key pairs of a specified bit length.
+-   `PaddedRSA.java`: Implements RSA encryption and decryption with PKCS#1 v1.5 padding.
+-   `AESKeyGenerator.java`: A simple utility to generate a cryptographically secure random key for AES.
