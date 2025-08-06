@@ -63,4 +63,23 @@ class HybridEncryptorTest {
         // Assert
         assertEquals("", decryptedMessage, "Decrypting an empty message should result in an empty string");
     }
+
+    @Test
+    @DisplayName("Should fail to decrypt with the wrong private key")
+    void testDecrypt_WithWrongKey_ShouldFail() throws Exception {
+        // Arrange
+        String originalMessage = "This message should not be recoverable.";
+        byte[] originalMessageBytes = originalMessage.getBytes(StandardCharsets.UTF_8);
+        KeGenRSA wrongKeyPair = new KeGenRSA(2048); // A different key pair
+
+        byte[] ciphertext = HybridEncryptor.encrypt(originalMessageBytes, aesKey, rsaKeyPair.getPublicKey(), rsaKeyPair.getModulus());
+
+        // Act & Assert: Decrypting with the wrong key should throw an exception.
+        // The exception can vary (e.g., InvalidKeyException from a bad AES key length,
+        // or a padding error from PaddedRSA.unpad) because decrypting the AES key
+        // with the wrong RSA key produces garbage. The core assertion is that the
+        // decryption process must fail, not produce incorrect data.
+        assertThrows(Exception.class, () -> HybridEncryptor.decrypt(ciphertext, wrongKeyPair.getPrivateKey(), wrongKeyPair.getModulus()),
+                "Decryption with the wrong key should throw an exception.");
+    }
 }
