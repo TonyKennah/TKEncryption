@@ -68,8 +68,11 @@ public class PaddedRSA {
      * Format: 0x00 || 0x02 || PS || 0x00 || M
      */
     private static byte[] pad(byte[] message, int keyByteLength) {
-        if (message.length > keyByteLength - 11) {
-            throw new IllegalArgumentException("Message too long for RSA padding");
+        int maxMessageLength = keyByteLength - 11;
+        if (message.length > maxMessageLength) {
+            throw new IllegalArgumentException(
+                "Message too long for RSA padding. Message length: " + message.length +
+                ", max length: " + maxMessageLength + " for key of " + (keyByteLength * 8) + " bits.");
         }
         int psLength = keyByteLength - message.length - 3;
         byte[] ps = new byte[psLength];
