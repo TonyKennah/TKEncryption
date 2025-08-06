@@ -6,7 +6,17 @@ An educational Java project demonstrating hybrid encryption by implementing part
 
 This project was created to explore the inner workings of common cryptographic algorithms. It started with a basic RSA implementation and evolved into a hybrid system that combines the strengths of both asymmetric (RSA) and symmetric (AES) cryptography. This allows it to encrypt messages of any length, overcoming the size limitations of using RSA alone.
 
-A key goal of this project is to progressively replace standard Java security libraries with custom, from-scratch implementations for learning purposes.
+### The "Safe and Strongbox" Analogy
+
+Hybrid encryption can be understood with a simple analogy, which is also reflected in the console output of this program:
+
+1.  **The Strongbox (AES):** Your large message is placed inside a "strongbox" and locked with a simple, fast key. This represents symmetric encryption (AES), which is very efficient for large amounts of data.
+
+2.  **The Safe (RSA):** The small key for the strongbox is then placed inside a nearly unbreakable "safe". This safe can only be opened with a unique private key that only the recipient has. This represents asymmetric encryption (RSA), which is perfect for securely transferring the small AES key.
+
+3.  **The Package:** The locked strongbox and the locked safe are sent together. The recipient uses their private key to open the safe, retrieves the strongbox key, and then uses that key to open the strongbox and read the message.
+
+This approach gives you the best of both worlds: the convenience of public-key cryptography and the performance of symmetric-key cryptography.
 
 ## Features
 

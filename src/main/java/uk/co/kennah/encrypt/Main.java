@@ -14,24 +14,34 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            System.out.println("Generating 2048-bit RSA key pair...");
             KeGenRSA keyPair = new KeGenRSA(2048);
             BigInteger publicKey = keyPair.getPublicKey();
             BigInteger privateKey = keyPair.getPrivateKey();
             BigInteger modulus = keyPair.getModulus();
 
-            System.out.println("Generated RSA Keys (truncated for display) ---");
+            System.out.println("Generating RSA Key pair (Expensive but small Safe) ---");
             String privateKeyStr = keyPair.getPrivateKey().toString();
             String modulusStr = keyPair.getModulus().toString();
             String truncatedModulus = modulusStr.substring(0, Math.min(modulusStr.length(), 60)) + "...";
 
-            System.out.println("Public Key (e, n):");
+            System.out.println("\nPublic Key (e, n):");
             System.out.println("  e: " + keyPair.getPublicKey());
             System.out.println("  n: " + truncatedModulus);
 
             System.out.println("\nPrivate Key (d, n):");
             System.out.println("  d: " + privateKeyStr.substring(0, Math.min(privateKeyStr.length(), 60)) + "...");
             System.out.println("  n: " + truncatedModulus);
+
+            // For each message, generate a new, one-time-use AES key.
+            System.out.println("\n\nGenerating one-time AES key (Inexpensive but large Strongbox) for this message...");
+            SecretKey aesKey = KeGenAES.generateKey(128);
+            StringBuilder hexKey = new StringBuilder();
+            for (byte b : aesKey.getEncoded()) {
+                hexKey.append(String.format("%02x", b));
+            }
+            System.out.println("\nAES Key (128-bit):");
+            System.out.println("  " + hexKey.toString());
+
 
             String originalMessage;
             System.out.print("\nEnter the message to encrypt: ");
@@ -45,10 +55,6 @@ public class Main {
             }
 
             System.out.println("Original Message (length " + originalMessage.length() + "): " + originalMessage);
-
-            // For each message, generate a new, one-time-use AES key.
-            System.out.println("\nGenerating one-time AES key for this message...");
-            SecretKey aesKey = KeGenAES.generateKey(128);
 
             // Encrypt using the hybrid scheme
             System.out.println("\nEncrypting with hybrid (RSA+AES) scheme...");

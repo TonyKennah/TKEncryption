@@ -43,8 +43,11 @@ public class HybridEncryptor {
         aesCipher.init(Cipher.ENCRYPT_MODE, aesKey, ivSpec);
         byte[] encryptedMessage = aesCipher.doFinal(message);
 
+        System.out.println("Message put in Strongbox ");
+
         // 4. Encrypt the small AES key with RSA.
         BigInteger encryptedAesKeyBI = PaddedRSA.encrypt(aesKey.getEncoded(), e, n);
+        System.out.println("Strongbox key placed in Safe and Safe Locked with public key.");
 
         // 5. Convert the encrypted key BigInteger to a fixed-size byte array.
         int keyByteLength = (n.bitLength() + 7) / 8;
@@ -55,6 +58,8 @@ public class HybridEncryptor {
         outputStream.write(encryptedAesKeyBytes);
         outputStream.write(iv);
         outputStream.write(encryptedMessage);
+
+        System.out.println("Safe and Strongbox packaged together and sent to the recipient\n---");
 
         return outputStream.toByteArray();
     }
@@ -75,6 +80,7 @@ public class HybridEncryptor {
         byte[] encryptedAesKeyBytes = new byte[keyByteLength];
         System.arraycopy(hybridCiphertext, 0, encryptedAesKeyBytes, 0, keyByteLength);
 
+        System.out.println("---\nSafe and Strongbox received.");
         byte[] iv = new byte[IV_SIZE];
         System.arraycopy(hybridCiphertext, keyByteLength, iv, 0, IV_SIZE);
 
@@ -89,10 +95,13 @@ public class HybridEncryptor {
         SecretKey aesKey = new SecretKeySpec(decryptedAesKeyBytes, "AES");
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
+        System.out.println("Safe opened with private key, Strongbox key retrieved.");
+
         // 4. Decrypt the message with AES.
         Cipher aesCipher = Cipher.getInstance(AES_ALGORITHM);
         aesCipher.init(Cipher.DECRYPT_MODE, aesKey, ivSpec);
 
+        System.out.println("Strongbox opened, message retrieved.");
         return aesCipher.doFinal(encryptedMessage);
     }
 
