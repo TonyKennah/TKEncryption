@@ -20,9 +20,11 @@ This approach gives you the best of both worlds: the convenience of public-key c
 
 ## Features
 
-- **Hybrid Encryption:** Combines a custom RSA implementation for key exchange with the standard Java `Cipher` class for AES data encryption.
-- **Custom RSA Implementation:** Includes from-scratch logic for key generation (`KeGen.java`) and encryption/decryption with PKCS#1 v1.5 padding (`PaddedRSA.java`).
-- **Custom AES Key Generation:** `AESKeyGenerator.java` provides a simple utility to generate a cryptographically secure random key for AES, replacing `javax.crypto.KeyGenerator`.
+- **Hybrid Encryption:** Combines a custom RSA implementation for key exchange with the standard Java `Cipher` for AES data encryption.
+- **Custom RSA Key Generation:** `KeGenRSA.java` provides from-scratch logic for generating RSA public/private key pairs.
+- **Custom AES Key Generation:** `KeGenAES.java` provides a simple utility to generate a cryptographically secure random key for AES, replacing `javax.crypto.KeyGenerator`.
+- **Custom RSA Padding:** `PaddedRSA.java` implements RSA encryption and decryption with PKCS#1 v1.5 padding.
+
 
 ---
 
@@ -75,6 +77,7 @@ Display the encrypted and then decrypted message to demonstrate a successful rou
 
 ### Utility Classes (`utils/`)
 
--   `KeGen.java`: Generates RSA public and private key pairs of a specified bit length.
+-   `KeGenRSA.java`: Generates RSA public and private key pairs of a specified bit length.
+-   `KeGenAES.java`: A simple utility to generate a cryptographically secure random key for AES.
 -   `PaddedRSA.java`: Implements RSA encryption and decryption with PKCS#1 v1.5 padding.
--   `AESKeyGenerator.java`: A simple utility to generate a cryptographically secure random key for AES.
+-   `AESCipher.java`: (In progress) A from-scratch implementation of the AES algorithm. Not yet integrated.
