@@ -25,7 +25,6 @@ This approach gives you the best of both worlds: the convenience of public-key c
 - **Custom AES Key Generation:** `KeGenAES.java` provides a simple utility to generate a cryptographically secure random key for AES, replacing `javax.crypto.KeyGenerator`.
 - **Custom RSA Padding:** `PaddedRSA.java` implements RSA encryption and decryption with PKCS#1 v1.5 padding.
 
-
 ---
 
 ### ⚠️ Security Disclaimer
