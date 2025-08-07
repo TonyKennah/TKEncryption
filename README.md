@@ -39,7 +39,7 @@ The custom cryptographic implementations are simplified to be understandable and
 ## Building the Project
 To compile the source code, run the following Maven command from the project's root directory:
 
-``` bash
+```bash
    mvn compile
 ```
 
