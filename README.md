@@ -1,3 +1,5 @@
+[![Build & Test Status](https://github.com/TonyKennah/TKEncryption/actions/workflows/maven.yml/badge.svg)](https://github.com/TonyKennah/TKEncryption/actions/workflows/maven.yml)
+
 # TKEncryption
 
 An educational Java project demonstrating hybrid encryption by implementing parts of the cryptographic stack from scratch.
